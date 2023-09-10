@@ -177,3 +177,141 @@ public RemoteSetPlayerPos(data[]){
     printf("[RemoteSetPlayerPos] Moving player %d to %f, %f, %f.", playerid, pos_x, pos_y, pos_z);
     return SetPlayerPos(playerid, pos_x, pos_y, pos_z);
 }
+
+forward RemoteResetPlayerWeapons(data[]);
+public RemoteResetPlayerWeapons(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteResetPlayerWeapons] Could not parse json");
+        return 0;
+    }
+
+    new playerid;
+    if (JSON_GetInt(node, "player_id", playerid)) {
+        printf("[RemoteResetPlayerWeapons] Failed to get 'player_id' from JSON.");
+        return 0;
+    }
+
+    return ResetPlayerWeapons(playerid);
+}
+
+forward RemoteSetPlayerArmour(data[]);
+public RemoteSetPlayerArmour(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerArmour] Could not parse json");
+        return 0;
+    }
+
+    new playerid;
+    new Float:armour;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetFloat(node, "armour", armour)) {
+        printf("[RemoteSetPlayerArmour] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerArmour(playerid, armour);
+}
+
+forward RemoteSetPlayerFightingStyle(data[]);
+public RemoteSetPlayerFightingStyle(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerFightingStyle] Could not parse json");
+        return 0;
+    }
+
+    new playerid, style;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetInt(node, "style", style)) {
+        printf("[RemoteSetPlayerFightingStyle] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerFightingStyle(playerid, style);
+}
+
+forward RemoteSetPlayerHealth(data[]);
+public RemoteSetPlayerHealth(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerHealth] Could not parse json");
+        return 0;
+    }
+
+    new playerid;
+    new Float:health;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetFloat(node, "health", health)) {
+        printf("[RemoteSetPlayerHealth] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerHealth(playerid, health);
+}
+
+forward RemoteSetPlayerInterior(data[]);
+public RemoteSetPlayerInterior(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerInterior] Could not parse json");
+        return 0;
+    }
+
+    new playerid, interiorid;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetInt(node, "interior_id", interiorid)) {
+        printf("[RemoteSetPlayerInterior] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerInterior(playerid, interiorid);
+}
+
+forward RemoteSetPlayerSkin(data[]);
+public RemoteSetPlayerSkin(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerSkin] Could not parse json");
+        return 0;
+    }
+
+    new playerid, skinid;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetInt(node, "skin_id", skinid)) {
+        printf("[RemoteSetPlayerSkin] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerSkin(playerid, skinid);
+}
+
+forward RemoteSetPlayerVirtualWorld(data[]);
+public RemoteSetPlayerVirtualWorld(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerVirtualWorld] Could not parse json");
+        return 0;
+    }
+
+    new playerid, worldid;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetInt(node, "world_id", worldid)) {
+        printf("[RemoteSetPlayerVirtualWorld] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerVirtualWorld(playerid, worldid);
+}
+
+forward RemoteSetPlayerWeather(data[]);
+public RemoteSetPlayerWeather(data[]){
+    new Node:node;
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerWeather] Could not parse json");
+        return 0;
+    }
+
+    new playerid, weather;
+    if (JSON_GetInt(node, "player_id", playerid) || JSON_GetInt(node, "weather", weather)) {
+        printf("[RemoteSetPlayerWeather] Failed to get required parameters from JSON.");
+        return 0;
+    }
+
+    return SetPlayerWeather(playerid, weather);
+}
