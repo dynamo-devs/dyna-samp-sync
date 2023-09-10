@@ -7,14 +7,14 @@
 new Redis:client;
 new PubSub:pubsub_2;
 
-main() 
-{
+public OnFilterScriptInit(){
     print("\n--REDIS.\n");
 	new ret = Redis_Connect("localhost", 6379, "", client);
 	printf("REDIS ret: %d", ret);
 
 	Redis_Subscribe("localhost", 6379, "", "dynamo:local:api:player-update", "OnServerUpdatePlayer", pubsub_2);
 	SetTimer("IteratePlayers", 1000, true);
+	return 1;
 }
 
 
