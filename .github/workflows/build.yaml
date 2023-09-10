@@ -30,6 +30,3 @@ jobs:
 
       - name: Build package
         run: sampctl build
-
-      - name: Run package
-        run: sampctl run

@@ -1,7 +1,7 @@
 {
 	"user": "dynamo-devs",
 	"repo": "dyna-samp-sync",
-	"tag": "0.0.1",
+	"tag": "0.0.7",
 	"entry": "dyn-sync.pwn",
 	"output": "dyn-sync.amx",
 	"dependencies": [
