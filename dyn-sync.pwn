@@ -149,3 +149,31 @@ public OnServerExecuteRemoteFunction(PubSub:id, data[]){
 
     return 1;
 }
+
+forward RemoteSetPlayerPos(data[]);
+public RemoteSetPlayerPos(data[]){
+
+    new Node:node;
+
+    if(JSON_Parse(data, node)) {
+        printf("[RemoteSetPlayerPos] could not parse json");
+        return 0;
+    }
+
+    new playerid, Float:pos_x, Float:pos_y, Float:pos_z;
+
+    if (JSON_GetInt(node, "player_id", playerid))
+    {
+        printf("[RemoteSetPlayerPos] Failed to get 'player_id' from JSON.");
+        return 0;
+    }
+
+    if (JSON_GetFloat(node, "pos_x", pos_x) || JSON_GetFloat(node, "pos_y", pos_y) || JSON_GetFloat(node, "pos_z", pos_z))
+    {
+        printf("[RemoteSetPlayerPos] Failed to get complete position from JSON.");
+        return 0;
+    }
+
+    printf("[RemoteSetPlayerPos] Moving player %d to %f, %f, %f.", playerid, pos_x, pos_y, pos_z);
+    return SetPlayerPos(playerid, pos_x, pos_y, pos_z);
+}
