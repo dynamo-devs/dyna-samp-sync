@@ -1,0 +1,35 @@
+name: build-package
+
+on:
+  push:
+    branches:
+      - master  # Replace with the name of your default branch if it's not 'master'
+  pull_request:
+    branches:
+      - master  # Replace with the name of your default branch if it's not 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install sampctl
+        run: curl https://raw.githubusercontent.com/Southclaws/sampctl/master/install-deb.sh | sh
+
+      - name: Add i386 architecture
+        run: sudo dpkg --add-architecture i386
+
+      - name: Update and install packages
+        run: sudo apt update && sudo apt install -y g++-multilib
+
+      - name: Ensure package dependencies
+        run: sampctl package ensure
+
+      - name: Build package
+        run: sampctl package build
+
+      - name: Run package
+        run: sampctl package run

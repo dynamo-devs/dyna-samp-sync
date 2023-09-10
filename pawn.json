@@ -1,6 +1,6 @@
 {
-	"user": "dynamo-games",
-	"repo": "dynamo-sync",
+	"user": "dynamo-devs",
+	"repo": "dyna-samp-sync",
 	"tag": "0.0.1",
 	"entry": "dyn-sync.pwn",
 	"output": "dyn-sync.amx",
