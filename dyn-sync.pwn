@@ -3,7 +3,6 @@
 #include <redis>
 #include <json>
 
-
 new Redis:client;
 new PubSub:pubsub_2;
 
@@ -13,7 +12,7 @@ public OnFilterScriptInit(){
 	printf("REDIS ret: %d", ret);
 
 	Redis_Subscribe("localhost", 6379, "", "dynamo:local:api:run-function", "OnServerExecuteRemoteFunction", pubsub_2);
-	SetTimer("IteratePlayers", 1000, true);
+	SetTimer("SyncConnectedPlayers", 1000, true);
 	return 1;
 }
 
@@ -42,27 +41,8 @@ public OnPlayerDisconnect(playerid) {
 
 }
 
-public OnPlayerUpdate(playerid) {
-
-    if(!IsPlayerConnected(playerid)) return 0;
-
-    new name[MAX_PLAYER_NAME];
-    new message[256];
-    new Float:x, Float:y, Float:z, Float:health, Float:armor;
-
-    GetPlayerName(playerid, name, sizeof(name));
-    GetPlayerPos(playerid, x, y, z);
-    GetPlayerHealth(playerid, health);
-    GetPlayerArmour(playerid, armor);
-
-    format(message, sizeof(message), "%d|%s|%f|%f|%f|%f|%f", playerid, name, x, y, z, health, armor);
-    Redis_Publish(client, "dynamo:local:samp:player-update", message);
-    return 1;
-
-}
-
-forward IteratePlayers();
-public IteratePlayers()
+forward SyncConnectedPlayers();
+public SyncConnectedPlayers()
 {
     for (new i = 0; i < MAX_PLAYERS; i++)
     {
@@ -127,25 +107,42 @@ public OnServerExecuteRemoteFunction(PubSub:id, data[]){
         return 0;
     }
 
-    // Extract "function" from JSON
-    new func_to_call[32];
-    new full_func_to_call[40] = "Remote";
-    if (JSON_GetString(node, "function", func_to_call))
+    new execution_id[36];
+    if (JSON_GetString(node, "id", execution_id))
     {
-        printf("[OnServerExecuteRemoteFunction] Failed to get 'function' from JSON.");
+        printf("[OnServerExecuteRemoteFunction] Failed to get 'execution_id' from JSON.");
         return 0;
     }
 
+    // Extract "function" from JSON
+    new func_to_call[32];
+    if (JSON_GetString(node, "function", func_to_call))
+    {
+        printf("[OnServerExecuteRemoteFunction//%s] Failed to get 'function' from JSON.", execution_id);
+        return 0;
+    }
+
+    new full_func_to_call[40] = "Remote";
     strcat(full_func_to_call, func_to_call);
 
     new params_to_send[128];
     if (JSON_GetString(node, "params", params_to_send))
     {
-        printf("[OnServerExecuteRemoteFunction] Failed to get 'params' from JSON.");
+        printf("[OnServerExecuteRemoteFunction//%s] Failed to get 'params' from JSON.", execution_id);
         return 0;
     }
 
-    CallRemoteFunction(full_func_to_call, "s", params_to_send);
+    new ret = CallRemoteFunction(full_func_to_call, "s", params_to_send);
+
+    new Node:callbackJson = JSON_Object(
+        "id", JSON_String(execution_id),
+        "ret": JSON_Int(ret)
+    );
+
+    new jsonStr[512];
+    JSON_Stringify(callbackJson, jsonStr, sizeof(jsonStr));
+
+    Redis_Publish(client, "dynamo:local:samp:callback-function", jsonStr);
 
     return 1;
 }
