@@ -1,0 +1,15 @@
+{
+	"user": "dynamo-games",
+	"repo": "dynamo-sync",
+	"tag": "0.0.1",
+	"entry": "dyn-sync.pwn",
+	"output": "dyn-sync.amx",
+	"dependencies": [
+		"pawn-lang/samp-stdlib",
+		"Southclaws/pawn-redis:1.2.0",
+		"Southclaws/pawn-json:1.4.1"
+	],
+	"runtime": {
+		"mode": "y_testing"
+	}
+}
