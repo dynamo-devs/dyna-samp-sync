@@ -26,10 +26,10 @@ jobs:
         run: sudo apt update && sudo apt install -y g++-multilib
 
       - name: Ensure package dependencies
-        run: sampctl package ensure
+        run: sampctl ensure
 
       - name: Build package
-        run: sampctl package build
+        run: sampctl build
 
       - name: Run package
-        run: sampctl package run
+        run: sampctl run
