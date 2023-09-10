@@ -12,7 +12,7 @@ public OnFilterScriptInit(){
 	new ret = Redis_Connect("localhost", 6379, "", client);
 	printf("REDIS ret: %d", ret);
 
-	Redis_Subscribe("localhost", 6379, "", "dynamo:local:api:player-update", "OnServerUpdatePlayer", pubsub_2);
+	Redis_Subscribe("localhost", 6379, "", "dynamo:local:api:run-function", "OnServerExecuteRemoteFunction", pubsub_2);
 	SetTimer("IteratePlayers", 1000, true);
 	return 1;
 }
@@ -115,103 +115,37 @@ public SyncPlayer(playerid) {
 
 }
 
-forward OnServerUpdatePlayer(PubSub:id, data[]);
-public OnServerUpdatePlayer(PubSub:id, data[]){
+forward OnServerExecuteRemoteFunction(PubSub:id, data[]);
+public OnServerExecuteRemoteFunction(PubSub:id, data[]){
 
     new Node:node;
     new ret;
 
     ret = JSON_Parse(data, node);
     if(ret) {
-        printf("[OnServerUpdatePlayer] could not parse json. Err: %d", ret);
+        printf("[OnServerExecuteRemoteFunction] could not parse json. Err: %d", ret);
         return 0;
     }
 
-
-    new playerid;
-    ret = JSON_GetInt(node, "playerid", playerid);
-    if(ret) {
-        printf("[OnServerUpdatePlayer] Could not get playerid. Err: %d", ret);
+    // Extract "function" from JSON
+    new func_to_call[32];
+    new full_func_to_call[40] = "Remote";
+    if (JSON_GetString(node, "function", func_to_call))
+    {
+        printf("[OnServerExecuteRemoteFunction] Failed to get 'function' from JSON.");
         return 0;
     }
 
-    if(!IsPlayerConnected(playerid)) {
-        printf("[OnServerUpdatePlayer] Player %d is not connected", playerid);
+    strcat(full_func_to_call, func_to_call);
+
+    new params_to_send[128];
+    if (JSON_GetString(node, "params", params_to_send))
+    {
+        printf("[OnServerExecuteRemoteFunction] Failed to get 'params' from JSON.");
         return 0;
     }
 
-    // Get the 'stats' object
-    new Node:stats;
-    ret = JSON_GetObject(node, "stats", stats);
-    if(ret == 0) {
-
-        new Float:health, Float:armour, skin;
-
-        ret = JSON_GetFloat(stats, "health", health);
-        if(!ret) {
-            SetPlayerHealth(playerid, health);
-            printf("[OnServerUpdatePlayer] Updating player %d health to %f", playerid, health);
-        }
-
-        // Check for 'armour' and set it if present
-        ret = JSON_GetFloat(stats, "armour", armour);
-        if(!ret) {
-            SetPlayerArmour(playerid, armour);
-            printf("[OnServerUpdatePlayer] Updating player %d armour to %f", playerid, armour);
-        }
-
-        // Update Skin
-        ret = JSON_GetInt(stats, "skin", skin);
-        if(!ret) {
-            SetPlayerSkin(playerid, skin);
-            printf("[OnServerUpdatePlayer] Updating player %d skin to %d", playerid, skin);
-        }
-
-    }
-
-    // Get the 'pos' object
-    new Node:pos;
-    ret = JSON_GetObject(node, "pos", pos);
-    if(ret == 0) {
-
-        new interior, virtualWorld;
-
-        // Update Interior
-        ret = JSON_GetInt(pos, "interior", interior);
-        if(!ret) {
-            SetPlayerInterior(playerid, interior);
-            printf("[OnServerUpdatePlayer] Updating player %d interior to %d", playerid, interior);
-        }
-
-        // Update Virtual World
-        ret = JSON_GetInt(pos, "virtualWorld", virtualWorld);
-        if(!ret) {
-            SetPlayerVirtualWorld(playerid, virtualWorld);
-            printf("[OnServerUpdatePlayer] Updating player %d virtual world to %d", playerid, virtualWorld);
-        }
-
-        new Float:cur_x, Float:cur_y, Float:cur_z;
-        GetPlayerPos(playerid, cur_x, cur_y, cur_z);  // Get current player position
-
-        new Float:new_x = cur_x, Float:new_y = cur_y, Float:new_z = cur_z;
-
-        // Update X-coordinate if provided
-        ret = JSON_GetFloat(pos, "x", new_x);
-
-        // Update Y-coordinate if provided
-        ret = JSON_GetFloat(pos, "y", new_y);
-
-        // Update Z-coordinate if provided
-        ret = JSON_GetFloat(pos, "z", new_z);
-
-        // Set the updated position
-        if(new_x != cur_x || new_y != cur_y || new_z != cur_z) {
-            SetPlayerPos(playerid, new_x, new_y, new_z);
-            printf("[OnServerUpdatePlayer] Updating player %d position to (%f, %f, %f)", playerid, new_x, new_y, new_z);
-        }
-
-    }
-
+    CallRemoteFunction(full_func_to_call, "s", params_to_send);
 
     return 1;
 }
