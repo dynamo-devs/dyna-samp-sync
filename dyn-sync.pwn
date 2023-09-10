@@ -132,11 +132,11 @@ public OnServerExecuteRemoteFunction(PubSub:id, data[]){
         return 0;
     }
 
-    new ret = CallRemoteFunction(full_func_to_call, "s", params_to_send);
+    ret = CallRemoteFunction(full_func_to_call, "s", params_to_send);
 
     new Node:callbackJson = JSON_Object(
         "id", JSON_String(execution_id),
-        "ret": JSON_Int(ret)
+        "ret", JSON_Int(ret)
     );
 
     new jsonStr[512];
